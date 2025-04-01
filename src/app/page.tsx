@@ -7,24 +7,42 @@ import ReactMarkdown from 'react-markdown';
 import React from 'react';
 
 // 定義 ReactMarkdown 組件的類型
-type MarkdownComponentProps = {
+type MarkdownComponentProps = React.ComponentPropsWithoutRef<'div'> & {
   children?: React.ReactNode;
-  className?: string;
-  [key: string]: any;
 };
 
 // 定義 Code 組件的類型
-type CodeComponentProps = {
+type CodeComponentProps = React.ComponentPropsWithoutRef<'code'> & {
   inline?: boolean;
-  children?: React.ReactNode;
-  className?: string;
-  [key: string]: any;
 };
 
 // 定義 MermaidComponent 的 props 類型
 type MermaidComponentProps = {
   content: string;
   key?: number;
+};
+
+// 定義標題組件的類型
+type HeadingComponentProps = React.ComponentPropsWithoutRef<'h1'> & {
+  children?: React.ReactNode;
+};
+
+// 定義段落組件的類型
+type ParagraphComponentProps = React.ComponentPropsWithoutRef<'p'> & {
+  children?: React.ReactNode;
+};
+
+// 定義列表組件的類型
+type ListComponentProps = React.ComponentPropsWithoutRef<'ul'> & {
+  children?: React.ReactNode;
+};
+
+type OrderedListComponentProps = React.ComponentPropsWithoutRef<'ol'> & {
+  children?: React.ReactNode;
+};
+
+type ListItemComponentProps = React.ComponentPropsWithoutRef<'li'> & {
+  children?: React.ReactNode;
 };
 
 // 動態導入 MDEditor 以避免 SSR 問題
@@ -209,18 +227,18 @@ classDiagram
                 );
               },
               // 自定義標題樣式
-              h1: ({children}: MarkdownComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
-              h2: ({children}: MarkdownComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
-              h3: ({children}: MarkdownComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
-              h4: ({children}: MarkdownComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
-              h5: ({children}: MarkdownComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
-              h6: ({children}: MarkdownComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
+              h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
+              h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
+              h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
+              h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
+              h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
+              h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
               // 自定義段落樣式
-              p: ({children}: MarkdownComponentProps) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
+              p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
               // 自定義列表樣式
-              ul: ({children}: MarkdownComponentProps) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
-              ol: ({children}: MarkdownComponentProps) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
-              li: ({children}: MarkdownComponentProps) => <li className="mb-1">{children}</li>,
+              ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
+              ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
+              li: ({children}: ListItemComponentProps) => <li className="mb-1">{children}</li>,
             }}
           >
             {part}

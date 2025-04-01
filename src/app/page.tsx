@@ -204,23 +204,23 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
       // 創建臨時容器用於 PDF 生成
       const tempContainer = document.createElement('div');
       tempContainer.style.width = '210mm'; // A4 寬度
-      tempContainer.style.padding = '20mm'; // 頁面邊距
+      tempContainer.style.padding = '10mm'; // 頁面邊距減半
       tempContainer.innerHTML = contentElement.innerHTML;
       document.body.appendChild(tempContainer);
 
       // 調整 Mermaid 圖表大小
       const svgElements = tempContainer.querySelectorAll('svg');
       svgElements.forEach(svg => {
-        svg.style.maxWidth = '170mm'; // 考慮頁面邊距後的最大寬度
+        svg.style.maxWidth = '190mm'; // 考慮頁面邊距後的最大寬度
         svg.style.height = 'auto';
         svg.style.display = 'block';
-        svg.style.marginBottom = '10mm';
+        svg.style.marginBottom = '5mm'; // 減少圖表間距
         svg.style.pageBreakInside = 'avoid'; // 避免圖表被分頁切割
       });
 
       // PDF 配置
       const opt = {
-        margin: 15,
+        margin: 7.5, // 邊距減半（從 15mm 減至 7.5mm）
         filename: 'markdown-content.pdf',
         image: { type: 'jpeg', quality: 1 },
         html2canvas: {

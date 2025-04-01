@@ -135,3 +135,72 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
+/* MDEditor 樣式覆蓋 */
+.wmde-markdown-var {
+  --color-canvas-default: transparent !important;
+  --color-fg-default: #000000 !important;
+}
+
+/* 深色模式樣式 */
+.dark .wmde-markdown-var {
+  --color-fg-default: #ffffff !important;
+}
+
+/* 編輯器文字顏色 */
+.w-md-editor-text-pre,
+.w-md-editor-text-input,
+.w-md-editor-text {
+  color: #000000 !important;
+}
+
+.dark .w-md-editor-text-pre,
+.dark .w-md-editor-text-input,
+.dark .w-md-editor-text {
+  color: #ffffff !important;
+}
+
+/* 標題符號顏色 */
+.w-md-editor-text-pre > code .token.punctuation,
+.w-md-editor-text-input .token.punctuation {
+  color: #000000 !important;
+}
+
+.dark .w-md-editor-text-pre > code .token.punctuation,
+.dark .w-md-editor-text-input .token.punctuation {
+  color: #ffffff !important;
+}
+
+/* 工具欄圖標顏色 */
+.w-md-editor-toolbar {
+  color: #000000 !important;
+}
+
+.dark .w-md-editor-toolbar {
+  color: #ffffff !important;
+}
+
+/* 工具欄按鈕懸停效果 */
+.w-md-editor-toolbar button:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .w-md-editor-toolbar button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 確保所有 Markdown 符號都遵循主題顏色 */
+.w-md-editor-text-pre > code *,
+.w-md-editor-text-input * {
+  color: inherit !important;
+}
+
+.w-md-editor-text-pre > code,
+.w-md-editor-text-input {
+  color: #000000 !important;
+}
+
+.dark .w-md-editor-text-pre > code,
+.dark .w-md-editor-text-input {
+  color: #ffffff !important;
+}

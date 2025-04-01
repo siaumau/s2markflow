@@ -206,13 +206,13 @@ classDiagram
 
       // 對於普通 Markdown 內容，使用 ReactMarkdown 進行解析渲染
       return (
-        <div key={index} className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
+        <div key={index} className="prose dark:prose-invert max-w-none">
           <ReactMarkdown
             components={{
               code({inline, children, ...props}: CodeComponentProps) {
                 if (inline) {
                   return (
-                    <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200" {...props}>
+                    <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white" {...props}>
                       {children}
                     </code>
                   );
@@ -220,25 +220,25 @@ classDiagram
                 // 非 inline 代碼塊
                 return (
                   <pre className="p-4 rounded-md bg-gray-100 dark:bg-gray-700 overflow-auto">
-                    <code className="text-gray-800 dark:text-gray-200" {...props}>
+                    <code className="text-black dark:text-white" {...props}>
                       {children}
                     </code>
                   </pre>
                 );
               },
               // 自定義標題樣式
-              h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
-              h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
-              h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
-              h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
-              h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
-              h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
+              h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-black dark:text-white">{children}</h1>,
+              h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-black dark:text-white">{children}</h2>,
+              h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-black dark:text-white">{children}</h3>,
+              h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-black dark:text-white">{children}</h4>,
+              h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-black dark:text-white">{children}</h5>,
+              h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-black dark:text-white">{children}</h6>,
               // 自定義段落樣式
-              p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
+              p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-black dark:text-white">{children}</p>,
               // 自定義列表樣式
-              ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
-              ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
-              li: ({children}: ListItemComponentProps) => <li className="mb-1">{children}</li>,
+              ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4 text-black dark:text-white">{children}</ul>,
+              ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4 text-black dark:text-white">{children}</ol>,
+              li: ({children}: ListItemComponentProps) => <li className="mb-1 text-black dark:text-white">{children}</li>,
             }}
           >
             {part}
@@ -305,7 +305,10 @@ classDiagram
                   onChange={setValue}
                   preview="edit"
                   height={400}
-                  className="!bg-transparent"
+                  className="!bg-transparent text-black dark:text-white"
+                  textareaProps={{
+                    className: 'text-black dark:text-white'
+                  }}
                 />
               </div>
             </div>
@@ -321,7 +324,29 @@ classDiagram
                 </h2>
               </div>
               <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 h-[400px] shadow-inner">
-                {value && renderContent(value)}
+                {value && (
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        const previewDiv = document.getElementById('preview-content');
+                        if (previewDiv) {
+                          previewDiv.classList.toggle('h-[400px]');
+                          previewDiv.classList.toggle('h-auto');
+                        }
+                      }}
+                      className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div id="preview-content" className="h-[400px] overflow-auto prose dark:prose-invert max-w-none">
+                      <div className="text-black dark:text-white">
+                        {renderContent(value)}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

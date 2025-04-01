@@ -4,6 +4,28 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import mermaid from 'mermaid';
 import ReactMarkdown from 'react-markdown';
+import React from 'react';
+
+// 定義 ReactMarkdown 組件的類型
+type MarkdownComponentProps = {
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+};
+
+// 定義 Code 組件的類型
+type CodeComponentProps = {
+  inline?: boolean;
+  children?: React.ReactNode;
+  className?: string;
+  [key: string]: any;
+};
+
+// 定義 MermaidComponent 的 props 類型
+type MermaidComponentProps = {
+  content: string;
+  key?: number;
+};
 
 // 動態導入 MDEditor 以避免 SSR 問題
 const MDEditorComponent = dynamic(
@@ -27,9 +49,9 @@ const MermaidComponent = ({ content }: { content: string }) => {
   }, [content]);
 
   return (
-    <div 
-      dangerouslySetInnerHTML={{ __html: svg }} 
-      className="w-full overflow-x-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 my-4" 
+    <div
+      dangerouslySetInnerHTML={{ __html: svg }}
+      className="w-full overflow-x-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 my-4"
     />
   );
 };
@@ -68,7 +90,7 @@ classDiagram
     if (typeof window !== 'undefined') {
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       setDarkMode(prefersDark);
-      
+
       // 設置初始主題
       if (prefersDark) {
         document.documentElement.classList.add('dark');
@@ -116,7 +138,7 @@ classDiagram
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const url = formData.get('url') as string;
-    
+
     try {
       const response = await fetch(url);
       const content = await response.text();
@@ -140,7 +162,7 @@ classDiagram
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       setFileName(file.name);
@@ -155,7 +177,7 @@ classDiagram
 
   const renderContent = (content: string) => {
     if (!content) return null;
-    
+
     // 移除所有 mermaid 代碼塊進行單獨處理
     const parts = content.split(/(```mermaid[\s\S]*?```)/g);
     return parts.map((part, index) => {
@@ -167,9 +189,9 @@ classDiagram
       // 對於普通 Markdown 內容，使用 ReactMarkdown 進行解析渲染
       return (
         <div key={index} className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
-          <ReactMarkdown 
+          <ReactMarkdown
             components={{
-              code({node, inline, className, children, ...props}: any) {
+              code({inline, children, ...props}: CodeComponentProps) {
                 if (inline) {
                   return (
                     <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200" {...props}>
@@ -187,18 +209,18 @@ classDiagram
                 );
               },
               // 自定義標題樣式
-              h1: ({children}: any) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
-              h2: ({children}: any) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
-              h3: ({children}: any) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
-              h4: ({children}: any) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
-              h5: ({children}: any) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
-              h6: ({children}: any) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
+              h1: ({children}: MarkdownComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
+              h2: ({children}: MarkdownComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
+              h3: ({children}: MarkdownComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
+              h4: ({children}: MarkdownComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
+              h5: ({children}: MarkdownComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
+              h6: ({children}: MarkdownComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
               // 自定義段落樣式
-              p: ({children}: any) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
+              p: ({children}: MarkdownComponentProps) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
               // 自定義列表樣式
-              ul: ({children}: any) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
-              ol: ({children}: any) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
-              li: ({children}: any) => <li className="mb-1">{children}</li>,
+              ul: ({children}: MarkdownComponentProps) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
+              ol: ({children}: MarkdownComponentProps) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
+              li: ({children}: MarkdownComponentProps) => <li className="mb-1">{children}</li>,
             }}
           >
             {part}
@@ -228,8 +250,8 @@ classDiagram
                 </p>
               </div>
             </div>
-            <button 
-              onClick={toggleDarkMode} 
+            <button
+              onClick={toggleDarkMode}
               className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               {darkMode ? (
@@ -287,7 +309,7 @@ classDiagram
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div 
+            <div
               className={`p-4 bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm border border-dashed ${
                 isDragging ? 'border-blue-500 bg-blue-50/30 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600'
               }`}
@@ -304,7 +326,7 @@ classDiagram
                 <div>
                   <h2 className="text-sm font-medium text-gray-800 dark:text-white">上傳文件</h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400">支持 .md, .markdown, .txt 格式</p>
-                  
+
                   <div className="mt-2 flex items-center">
                     <input
                       id="file-upload"

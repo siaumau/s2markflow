@@ -156,14 +156,17 @@ classDiagram
   const renderContent = (content: string) => {
     if (!content) return null;
     
+    // 移除所有 mermaid 代碼塊進行單獨處理
     const parts = content.split(/(```mermaid[\s\S]*?```)/g);
     return parts.map((part, index) => {
       if (part.startsWith('```mermaid')) {
         const mermaidContent = part.replace('```mermaid', '').replace('```', '').trim();
         return <MermaidComponent key={index} content={mermaidContent} />;
       }
+
+      // 對於普通 Markdown 內容，使用 ReactMarkdown 進行解析渲染
       return (
-        <div key={index} className="prose dark:prose-invert max-w-none">
+        <div key={index} className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">
           <ReactMarkdown 
             components={{
               code({node, inline, className, children, ...props}: any) {
@@ -174,6 +177,7 @@ classDiagram
                     </code>
                   );
                 }
+                // 非 inline 代碼塊
                 return (
                   <pre className="p-4 rounded-md bg-gray-100 dark:bg-gray-700 overflow-auto">
                     <code className="text-gray-800 dark:text-gray-200" {...props}>
@@ -182,10 +186,19 @@ classDiagram
                   </pre>
                 );
               },
+              // 自定義標題樣式
               h1: ({children}: any) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
               h2: ({children}: any) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
               h3: ({children}: any) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
+              h4: ({children}: any) => <h4 className="text-base font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h4>,
+              h5: ({children}: any) => <h5 className="text-sm font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h5>,
+              h6: ({children}: any) => <h6 className="text-xs font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h6>,
+              // 自定義段落樣式
               p: ({children}: any) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
+              // 自定義列表樣式
+              ul: ({children}: any) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
+              ol: ({children}: any) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
+              li: ({children}: any) => <li className="mb-1">{children}</li>,
             }}
           >
             {part}

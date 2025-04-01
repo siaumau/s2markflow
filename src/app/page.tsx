@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import mermaid from 'mermaid';
+import ReactMarkdown from 'react-markdown';
 
 // 動態導入 MDEditor 以避免 SSR 問題
 const MDEditorComponent = dynamic(
@@ -161,7 +162,36 @@ classDiagram
         const mermaidContent = part.replace('```mermaid', '').replace('```', '').trim();
         return <MermaidComponent key={index} content={mermaidContent} />;
       }
-      return <div key={index} className="prose dark:prose-invert max-w-none text-gray-800 dark:text-gray-200">{part}</div>;
+      return (
+        <div key={index} className="prose dark:prose-invert max-w-none">
+          <ReactMarkdown 
+            components={{
+              code({node, inline, className, children, ...props}: any) {
+                if (inline) {
+                  return (
+                    <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200" {...props}>
+                      {children}
+                    </code>
+                  );
+                }
+                return (
+                  <pre className="p-4 rounded-md bg-gray-100 dark:bg-gray-700 overflow-auto">
+                    <code className="text-gray-800 dark:text-gray-200" {...props}>
+                      {children}
+                    </code>
+                  </pre>
+                );
+              },
+              h1: ({children}: any) => <h1 className="text-2xl font-bold mt-6 mb-4 text-gray-900 dark:text-white">{children}</h1>,
+              h2: ({children}: any) => <h2 className="text-xl font-bold mt-5 mb-3 text-gray-900 dark:text-white">{children}</h2>,
+              h3: ({children}: any) => <h3 className="text-lg font-bold mt-4 mb-2 text-gray-900 dark:text-white">{children}</h3>,
+              p: ({children}: any) => <p className="mb-4 text-gray-800 dark:text-gray-200">{children}</p>,
+            }}
+          >
+            {part}
+          </ReactMarkdown>
+        </div>
+      );
     });
   };
 

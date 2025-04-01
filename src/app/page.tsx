@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import mermaid from 'mermaid';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
@@ -53,18 +53,55 @@ const MDEditorComponent = dynamic(
 
 const MermaidComponent = ({ content }: { content: string }) => {
   const [svg, setSvg] = useState<string>('');
+  const elementId = useMemo(() => `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, []);
 
   useEffect(() => {
     const renderDiagram = async () => {
       try {
-        const { svg } = await mermaid.render(`mermaid-${Date.now()}`, content);
+        // 清理內容
+        let processedContent = content.trim();
+        processedContent = processedContent.replace(/```mermaid\n?/g, '').replace(/```$/g, '').trim();
+
+        // 檢測圖表類型
+        let diagramType = '';
+        if (processedContent.includes('class ')) {
+          diagramType = 'classDiagram';
+        } else if (processedContent.includes('-->') || processedContent.includes('---')) {
+          diagramType = 'flowchart TD';
+        }
+
+        // 如果內容不是以圖表類型開頭，則添加
+        if (diagramType && !processedContent.startsWith(diagramType)) {
+          processedContent = `${diagramType}\n${processedContent}`;
+        }
+
+        // 初始化 Mermaid
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+          securityLevel: 'loose',
+          flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis',
+          },
+          class: {
+            useMaxWidth: true,
+            defaultRenderer: 'dagre-d3'
+          }
+        });
+
+        console.log('Rendering diagram with content:', processedContent); // 調試用
+        const { svg } = await mermaid.render(elementId, processedContent);
         setSvg(svg);
       } catch (error) {
         console.error('Mermaid rendering error:', error);
+        console.error('Content causing error:', content);
       }
     };
+
     renderDiagram();
-  }, [content]);
+  }, [content, elementId]);
 
   return (
     <div
@@ -93,11 +130,36 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
           htmlLabels: true,
           curve: 'basis',
         },
+        sequence: {
+          useMaxWidth: true,
+          showSequenceNumbers: true,
+        },
+        class: {
+          useMaxWidth: true,
+        },
+        er: {
+          useMaxWidth: true,
+        },
+        gantt: {
+          useMaxWidth: true,
+        },
+        pie: {
+          useMaxWidth: true,
+        }
       });
 
       // 強制重新渲染所有 Mermaid 圖表
       setTimeout(() => {
-        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+        const elements = document.querySelectorAll('.mermaid');
+        elements.forEach((element, index) => {
+          const id = `mermaid-${Date.now()}-${index}`;
+          element.id = id;
+          try {
+            mermaid.init(undefined, `#${id}`);
+          } catch (error) {
+            console.error('Mermaid rendering error:', error);
+          }
+        });
       }, 100);
     }
   }, [isOpen, content]);
@@ -129,7 +191,16 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
                     modalContent.classList.toggle('h-full');
                     // 切換高度後重新渲染 Mermaid 圖表
                     setTimeout(() => {
-                      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+                      const elements = document.querySelectorAll('.mermaid');
+                      elements.forEach((element, index) => {
+                        const id = `mermaid-${Date.now()}-${index}`;
+                        element.id = id;
+                        try {
+                          mermaid.init(undefined, `#${id}`);
+                        } catch (error) {
+                          console.error('Mermaid rendering error:', error);
+                        }
+                      });
                     }, 100);
                   }
                 }}
@@ -155,26 +226,67 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
 export default function Home() {
   const [value, setValue] = useState<string | undefined>(`# 歡迎使用 Markdown & Mermaid 編輯器
 
-這是一個示例流程圖：
+這是一個示例資料表關係圖：
 
 \`\`\`mermaid
 classDiagram
-  class gift3 {
-    +int gift3_id
-    +datetime gift3_dt1
-    +datetime gift3_dt2
-    +int gift3_type
-    +int gift3_count
-    +int gift3_point
-    +int gift3_stock
-    +int gift3_selected
-    +int level_id
-    +int gift3_a_count
-    +int gift3_b_count
-  }
-  class gift3page {
-    +int gift3page_year
-  }
+    class gift3 {
+        +int gift3_id
+        +datetime gift3_dt1
+        +datetime gift3_dt2
+        +int gift3_type
+        +int gift3_count
+        +int gift3_point
+        +int gift3_stock
+        +int gift3_selected
+        +int level_id
+        +int gift3_a_count
+        +int gift3_b_count
+    }
+
+    class gift3p {
+        +int gift3_id
+        +int p_id
+        +string gift3p_memo
+        +int gift3p_type
+    }
+
+    class p {
+        +int p_id
+        +string p_name
+        +string p_spec
+        +string p_img
+    }
+
+    class member_level2025 {
+        +int level_id
+        +string level_name
+    }
+
+    class monthly_gift {
+        +int p_id
+        +datetime monthly_gift_startdt
+        +datetime monthly_gift_enddt
+        +string member_level
+    }
+
+    class gift3page {
+        +int gift3page_year
+    }
+
+    class member {
+        +int member_id
+        +datetime member_birthday
+        +int member_nowtier2025
+        +int member_birthday2
+    }
+
+    gift3 "1" -- "*" gift3p : has
+    gift3 "1" -- "1" member_level2025 : belongs to
+    gift3p "*" -- "1" p : references
+    monthly_gift "*" -- "1" p : contains
+    monthly_gift "*" -- "*" member_level2025 : available for
+    member "1" -- "1" member_level2025 : belongs to
 \`\`\``);
 
   const [fileName, setFileName] = useState<string>('未選擇文件');
@@ -204,6 +316,22 @@ classDiagram
         htmlLabels: true,
         curve: 'basis',
       },
+      sequence: {
+        useMaxWidth: true,
+        showSequenceNumbers: true,
+      },
+      class: {
+        useMaxWidth: true,
+      },
+      er: {
+        useMaxWidth: true,
+      },
+      gantt: {
+        useMaxWidth: true,
+      },
+      pie: {
+        useMaxWidth: true,
+      }
     });
   }, [darkMode]);
 
@@ -215,6 +343,27 @@ classDiagram
       startOnLoad: true,
       theme: !darkMode ? 'dark' : 'neutral',
       securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis',
+      },
+      sequence: {
+        useMaxWidth: true,
+        showSequenceNumbers: true,
+      },
+      class: {
+        useMaxWidth: true,
+      },
+      er: {
+        useMaxWidth: true,
+      },
+      gantt: {
+        useMaxWidth: true,
+      },
+      pie: {
+        useMaxWidth: true,
+      }
     });
   };
 
@@ -275,17 +424,20 @@ classDiagram
   const renderContent = (content: string) => {
     if (!content) return null;
 
-    // 移除所有 mermaid 代碼塊進行單獨處理
     const parts = content.split(/(```mermaid[\s\S]*?```)/g);
+
     return parts.map((part, index) => {
       if (part.startsWith('```mermaid')) {
-        const mermaidContent = part.replace('```mermaid', '').replace('```', '').trim();
-        return <MermaidComponent key={index} content={mermaidContent} />;
+        const mermaidContent = part
+          .replace(/^```mermaid\s*\n?/, '')
+          .replace(/```\s*$/, '')
+          .trim();
+
+        return <MermaidComponent key={`mermaid-${index}`} content={mermaidContent} />;
       }
 
-      // 對於普通 Markdown 內容，使用 ReactMarkdown 進行解析渲染
-      return (
-        <div key={index}>
+      return part.trim() ? (
+        <div key={`markdown-${index}`}>
           <ReactMarkdown
             components={{
               code({inline, children, ...props}: CodeComponentProps) {
@@ -319,8 +471,8 @@ classDiagram
             {part}
           </ReactMarkdown>
         </div>
-      );
-    });
+      ) : null;
+    }).filter(Boolean);
   };
 
   return (

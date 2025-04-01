@@ -81,6 +81,27 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
   content: string;
   renderContent: (content: string) => React.ReactNode;
 }) => {
+  useEffect(() => {
+    if (isOpen && content) {
+      // 當模態框打開時重新初始化 Mermaid
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'neutral',
+        securityLevel: 'loose',
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true,
+          curve: 'basis',
+        },
+      });
+
+      // 強制重新渲染所有 Mermaid 圖表
+      setTimeout(() => {
+        mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+      }, 100);
+    }
+  }, [isOpen, content]);
+
   if (!isOpen) return null;
 
   return (
@@ -98,7 +119,33 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
           </button>
         </div>
         <div className="flex-1 overflow-auto p-6">
-          {renderContent(content)}
+          <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 shadow-inner">
+            <div className="relative">
+              <button
+                onClick={() => {
+                  const modalContent = document.getElementById('modal-preview-content');
+                  if (modalContent) {
+                    modalContent.classList.toggle('h-auto');
+                    modalContent.classList.toggle('h-full');
+                    // 切換高度後重新渲染 Mermaid 圖表
+                    setTimeout(() => {
+                      mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+                    }, 100);
+                  }
+                }}
+                className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              <div id="modal-preview-content" className="h-full overflow-auto prose dark:prose-invert max-w-none">
+                <div className="text-black dark:text-white">
+                  {renderContent(content)}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -238,7 +285,7 @@ classDiagram
 
       // 對於普通 Markdown 內容，使用 ReactMarkdown 進行解析渲染
       return (
-        <div key={index} className="prose dark:prose-invert max-w-none">
+        <div key={index}>
           <ReactMarkdown
             components={{
               code({inline, children, ...props}: CodeComponentProps) {
@@ -249,7 +296,6 @@ classDiagram
                     </code>
                   );
                 }
-                // 非 inline 代碼塊
                 return (
                   <pre className="p-4 rounded-md bg-gray-100 dark:bg-gray-700 overflow-auto">
                     <code className="text-black dark:text-white" {...props}>
@@ -258,16 +304,13 @@ classDiagram
                   </pre>
                 );
               },
-              // 自定義標題樣式
               h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-black dark:text-white">{children}</h1>,
               h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-black dark:text-white">{children}</h2>,
               h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-black dark:text-white">{children}</h3>,
               h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-black dark:text-white">{children}</h4>,
               h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-black dark:text-white">{children}</h5>,
               h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-black dark:text-white">{children}</h6>,
-              // 自定義段落樣式
               p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-black dark:text-white">{children}</p>,
-              // 自定義列表樣式
               ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4 text-black dark:text-white">{children}</ul>,
               ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4 text-black dark:text-white">{children}</ol>,
               li: ({children}: ListItemComponentProps) => <li className="mb-1 text-black dark:text-white">{children}</li>,

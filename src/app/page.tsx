@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import mermaid from 'mermaid';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
+import html2pdf from 'html2pdf.js';
 
 // 定義 ReactMarkdown 組件的類型
 type MarkdownComponentProps = React.ComponentPropsWithoutRef<'div'> & {
@@ -165,6 +166,53 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
     }
   }, [isOpen, content]);
 
+  const handleDownloadPDF = async () => {
+    const contentElement = document.getElementById('modal-preview-content');
+    if (!contentElement) return;
+
+    // 等待所有 Mermaid 圖表渲染完成
+    const mermaidElements = contentElement.querySelectorAll('.mermaid');
+    await Promise.all(Array.from(mermaidElements).map(async (element) => {
+      const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      element.id = id;
+      try {
+        const content = element.textContent || '';
+        let processedContent = content.trim();
+
+        if (processedContent.includes('class ') && !processedContent.startsWith('classDiagram')) {
+          processedContent = `classDiagram\n${processedContent}`;
+        } else if ((processedContent.includes('-->') || processedContent.includes('---')) && !processedContent.startsWith('flowchart')) {
+          processedContent = `flowchart TD\n${processedContent}`;
+        }
+
+        const { svg } = await mermaid.render(id, processedContent);
+        element.innerHTML = svg;
+      } catch (error) {
+        console.error('Mermaid rendering error:', error);
+      }
+    }));
+
+    // PDF 配置
+    const opt = {
+      margin: 10,
+      filename: 'markdown-content.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        logging: true
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    };
+
+    // 生成 PDF
+    html2pdf().set(opt).from(contentElement).save();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -172,17 +220,28 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
       <div className="bg-white dark:bg-gray-800 w-[90vw] h-[90vh] rounded-lg shadow-xl flex flex-col">
         <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-black dark:text-white">Markdown 預覽</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
-          >
-            <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleDownloadPDF}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300"
+              title="下載 PDF"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+            >
+              <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="flex-1 overflow-auto p-6">
-          <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 shadow-inner">
+          <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900 p-4 shadow-inner">
             <div className="relative">
               <button
                 onClick={() => {

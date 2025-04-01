@@ -204,3 +204,42 @@ body {
 .dark .w-md-editor-text-input {
   color: #ffffff !important;
 }
+
+/* Prose 樣式覆蓋 */
+.prose {
+  --tw-prose-body: #000000 !important;
+  --tw-prose-headings: #000000 !important;
+  --tw-prose-lead: #000000 !important;
+  --tw-prose-links: #000000 !important;
+  --tw-prose-bold: #000000 !important;
+  --tw-prose-counters: #000000 !important;
+  --tw-prose-bullets: #000000 !important;
+  --tw-prose-hr: #000000 !important;
+  --tw-prose-quotes: #000000 !important;
+  --tw-prose-quote-borders: #000000 !important;
+  --tw-prose-captions: #000000 !important;
+  --tw-prose-code: #000000 !important;
+  --tw-prose-pre-code: #000000 !important;
+  --tw-prose-pre-bg: #f3f4f6 !important;
+  --tw-prose-th-borders: #000000 !important;
+  --tw-prose-td-borders: #000000 !important;
+}
+
+.dark .prose {
+  --tw-prose-body: #ffffff !important;
+  --tw-prose-headings: #ffffff !important;
+  --tw-prose-lead: #ffffff !important;
+  --tw-prose-links: #ffffff !important;
+  --tw-prose-bold: #ffffff !important;
+  --tw-prose-counters: #ffffff !important;
+  --tw-prose-bullets: #ffffff !important;
+  --tw-prose-hr: #ffffff !important;
+  --tw-prose-quotes: #ffffff !important;
+  --tw-prose-quote-borders: #ffffff !important;
+  --tw-prose-captions: #ffffff !important;
+  --tw-prose-code: #ffffff !important;
+  --tw-prose-pre-code: #ffffff !important;
+  --tw-prose-pre-bg: #1f2937 !important;
+  --tw-prose-th-borders: #ffffff !important;
+  --tw-prose-td-borders: #ffffff !important;
+}

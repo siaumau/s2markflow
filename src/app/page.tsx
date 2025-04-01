@@ -74,6 +74,37 @@ const MermaidComponent = ({ content }: { content: string }) => {
   );
 };
 
+// 添加模態框組件
+const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
+  isOpen: boolean;
+  onClose: () => void;
+  content: string;
+  renderContent: (content: string) => React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-gray-800 w-[90vw] h-[90vh] rounded-lg shadow-xl flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-black dark:text-white">Markdown 預覽</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+          >
+            <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div className="flex-1 overflow-auto p-6">
+          {renderContent(content)}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [value, setValue] = useState<string | undefined>(`# 歡迎使用 Markdown & Mermaid 編輯器
 
@@ -102,6 +133,7 @@ classDiagram
   const [fileName, setFileName] = useState<string>('未選擇文件');
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // 檢測系統主題偏好
@@ -323,30 +355,43 @@ classDiagram
                   預覽
                 </h2>
               </div>
-              <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 h-[400px] shadow-inner">
-                {value && (
-                  <div className="relative">
-                    <button
-                      onClick={() => {
-                        const previewDiv = document.getElementById('preview-content');
-                        if (previewDiv) {
-                          previewDiv.classList.toggle('h-[400px]');
-                          previewDiv.classList.toggle('h-auto');
-                        }
-                      }}
-                      className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    <div id="preview-content" className="h-[400px] overflow-auto prose dark:prose-invert max-w-none">
-                      <div className="text-black dark:text-white">
-                        {renderContent(value)}
+              <div className="relative">
+                <div className="absolute top-2 right-2 z-10 flex space-x-2">
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                    title="在新視窗中預覽"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 h-[400px] shadow-inner">
+                  {value && (
+                    <div className="relative">
+                      <button
+                        onClick={() => {
+                          const previewDiv = document.getElementById('preview-content');
+                          if (previewDiv) {
+                            previewDiv.classList.toggle('h-[400px]');
+                            previewDiv.classList.toggle('h-auto');
+                          }
+                        }}
+                        className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      <div id="preview-content" className="h-[400px] overflow-auto prose dark:prose-invert max-w-none">
+                        <div className="text-black dark:text-white">
+                          {renderContent(value)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -423,6 +468,12 @@ classDiagram
           </footer>
         </div>
       </div>
+      <MarkdownModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        content={value || ''}
+        renderContent={renderContent}
+      />
     </div>
   );
 }

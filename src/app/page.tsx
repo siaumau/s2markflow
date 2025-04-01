@@ -61,22 +61,8 @@ const MermaidComponent = ({ content }: { content: string }) => {
       try {
         // 清理內容
         let processedContent = content.trim();
-        processedContent = processedContent.replace(/```mermaid\n?/g, '').replace(/```$/g, '').trim();
 
-        // 檢測圖表類型
-        let diagramType = '';
-        if (processedContent.includes('class ')) {
-          diagramType = 'classDiagram';
-        } else if (processedContent.includes('-->') || processedContent.includes('---')) {
-          diagramType = 'flowchart TD';
-        }
-
-        // 如果內容不是以圖表類型開頭，則添加
-        if (diagramType && !processedContent.startsWith(diagramType)) {
-          processedContent = `${diagramType}\n${processedContent}`;
-        }
-
-        // 初始化 Mermaid
+        // 初始化 Mermaid 配置
         mermaid.initialize({
           startOnLoad: false,
           theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
@@ -88,9 +74,18 @@ const MermaidComponent = ({ content }: { content: string }) => {
           },
           class: {
             useMaxWidth: true,
-            defaultRenderer: 'dagre-d3'
+            defaultRenderer: 'dagre-d3',
+            titleTopMargin: 25,
+            diagramPadding: 8
           }
         });
+
+        // 處理類圖中的關係語法
+        if (processedContent.includes('class ')) {
+          // 將 "1" -- "*" 格式轉換為標準的 Mermaid 類圖語法
+          processedContent = processedContent.replace(/(\w+)\s+"([^"]+)"\s+-->\s+"([^"]+)"\s+(\w+)/g, '$1 "$2" --> "$3" $4');
+          processedContent = processedContent.replace(/(\w+)\s+"([^"]+)"\s+--\s+"([^"]+)"\s+(\w+)/g, '$1 "$2" -- "$3" $4');
+        }
 
         console.log('Rendering diagram with content:', processedContent); // 調試用
         const { svg } = await mermaid.render(elementId, processedContent);
@@ -101,13 +96,21 @@ const MermaidComponent = ({ content }: { content: string }) => {
       }
     };
 
-    renderDiagram();
+    // 確保在組件掛載後再渲染圖表
+    const timer = setTimeout(renderDiagram, 100);
+    return () => clearTimeout(timer);
   }, [content, elementId]);
 
   return (
     <div
       dangerouslySetInnerHTML={{ __html: svg }}
       className="w-full overflow-x-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 my-4"
+      style={{
+        minHeight: '100px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
     />
   );
 };
@@ -138,31 +141,33 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
       });
 
       // 強制重新渲染所有 Mermaid 圖表
-      setTimeout(() => {
+      const renderMermaidDiagrams = async () => {
         const elements = document.querySelectorAll('.mermaid');
-        elements.forEach((element, index) => {
-          const id = `mermaid-${Date.now()}-${index}`;
+        await Promise.all(Array.from(elements).map(async (element) => {
+          const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
           element.id = id;
           try {
-            // 檢測圖表類型並確保正確的語法
             const content = element.textContent || '';
             let processedContent = content.trim();
 
-            // 如果內容不是以圖表類型開頭，則添加
+            // 檢測圖表類型並確保正確的語法
             if (processedContent.includes('class ') && !processedContent.startsWith('classDiagram')) {
               processedContent = `classDiagram\n${processedContent}`;
             } else if ((processedContent.includes('-->') || processedContent.includes('---')) && !processedContent.startsWith('flowchart')) {
               processedContent = `flowchart TD\n${processedContent}`;
             }
 
-            mermaid.render(id, processedContent).then(({ svg }) => {
-              element.innerHTML = svg;
-            });
+            const { svg } = await mermaid.render(id, processedContent);
+            element.innerHTML = svg;
           } catch (error) {
             console.error('Mermaid rendering error:', error);
+            console.error('Content causing error:', element.textContent);
           }
-        });
-      }, 100);
+        }));
+      };
+
+      // 等待 DOM 更新後再渲染圖表
+      setTimeout(renderMermaidDiagrams, 100);
     }
   }, [isOpen, content]);
 
@@ -170,47 +175,87 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
     const contentElement = document.getElementById('modal-preview-content');
     if (!contentElement) return;
 
-    // 等待所有 Mermaid 圖表渲染完成
-    const mermaidElements = contentElement.querySelectorAll('.mermaid');
-    await Promise.all(Array.from(mermaidElements).map(async (element) => {
-      const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      element.id = id;
-      try {
-        const content = element.textContent || '';
-        let processedContent = content.trim();
+    try {
+      // 動態導入 html2pdf
+      const { default: html2pdf } = await import('html2pdf.js');
 
-        if (processedContent.includes('class ') && !processedContent.startsWith('classDiagram')) {
-          processedContent = `classDiagram\n${processedContent}`;
-        } else if ((processedContent.includes('-->') || processedContent.includes('---')) && !processedContent.startsWith('flowchart')) {
-          processedContent = `flowchart TD\n${processedContent}`;
+      // 等待所有 Mermaid 圖表渲染完成
+      const mermaidElements = contentElement.querySelectorAll('.mermaid');
+      await Promise.all(Array.from(mermaidElements).map(async (element) => {
+        const id = `mermaid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        element.id = id;
+        try {
+          const content = element.textContent || '';
+          let processedContent = content.trim();
+
+          if (processedContent.includes('class ') && !processedContent.startsWith('classDiagram')) {
+            processedContent = `classDiagram\n${processedContent}`;
+          } else if ((processedContent.includes('-->') || processedContent.includes('---')) && !processedContent.startsWith('flowchart')) {
+            processedContent = `flowchart TD\n${processedContent}`;
+          }
+
+          const { svg } = await mermaid.render(id, processedContent);
+          element.innerHTML = svg;
+        } catch (error) {
+          console.error('Mermaid rendering error:', error);
         }
+      }));
 
-        const { svg } = await mermaid.render(id, processedContent);
-        element.innerHTML = svg;
-      } catch (error) {
-        console.error('Mermaid rendering error:', error);
-      }
-    }));
+      // 創建臨時容器用於 PDF 生成
+      const tempContainer = document.createElement('div');
+      tempContainer.style.width = '210mm'; // A4 寬度
+      tempContainer.style.padding = '20mm'; // 頁面邊距
+      tempContainer.innerHTML = contentElement.innerHTML;
+      document.body.appendChild(tempContainer);
 
-    // PDF 配置
-    const opt = {
-      margin: 10,
-      filename: 'markdown-content.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        logging: true
-      },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
-    };
+      // 調整 Mermaid 圖表大小
+      const svgElements = tempContainer.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        svg.style.maxWidth = '170mm'; // 考慮頁面邊距後的最大寬度
+        svg.style.height = 'auto';
+        svg.style.display = 'block';
+        svg.style.marginBottom = '10mm';
+        svg.style.pageBreakInside = 'avoid'; // 避免圖表被分頁切割
+      });
 
-    // 生成 PDF
-    html2pdf().set(opt).from(contentElement).save();
+      // PDF 配置
+      const opt = {
+        margin: 15,
+        filename: 'markdown-content.pdf',
+        image: { type: 'jpeg', quality: 1 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: true,
+          allowTaint: true,
+          scrollY: 0,
+          windowWidth: 794, // A4 寬度（點）
+          letterRendering: true,
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait',
+          compress: true,
+          precision: 16
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy'],
+          before: '.page-break-before',
+          after: '.page-break-after',
+          avoid: ['svg', 'table', 'img']
+        }
+      };
+
+      // 生成 PDF
+      await html2pdf().set(opt).from(tempContainer).save();
+
+      // 清理臨時容器
+      document.body.removeChild(tempContainer);
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      alert('生成 PDF 時發生錯誤，請稍後再試');
+    }
   };
 
   if (!isOpen) return null;
@@ -484,20 +529,28 @@ classDiagram
   const renderContent = (content: string) => {
     if (!content) return null;
 
+    // 使用正則表達式分割內容，保留 Mermaid 代碼塊
     const parts = content.split(/(```mermaid[\s\S]*?```)/g);
 
     return parts.map((part, index) => {
       if (part.startsWith('```mermaid')) {
+        // 提取 Mermaid 內容
         const mermaidContent = part
-          .replace(/^```mermaid\s*\n?/, '')
-          .replace(/```\s*$/, '')
+          .replace(/```mermaid\n?/, '')
+          .replace(/```$/, '')
           .trim();
 
-        return <MermaidComponent key={`mermaid-${index}`} content={mermaidContent} />;
+        // 使用 MermaidComponent 渲染圖表
+        return (
+          <div key={`mermaid-${index}`} className="my-4">
+            <MermaidComponent content={mermaidContent} />
+          </div>
+        );
       }
 
+      // 渲染普通 Markdown 內容
       return part.trim() ? (
-        <div key={`markdown-${index}`}>
+        <div key={`markdown-${index}`} className="my-4">
           <ReactMarkdown
             components={{
               code({inline, children, ...props}: CodeComponentProps) {

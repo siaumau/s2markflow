@@ -489,7 +489,7 @@ classDiagram
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
-                  Markdown & Mermaid 編輯器
+                 PanPanMan Markdown & Mermaid 編輯器
                 </h1>
                 <p className="text-xs text-gray-600 dark:text-gray-300">
                   輕鬆編輯 Markdown 文件並創建流程圖
@@ -658,7 +658,7 @@ classDiagram
           </div>
 
           <footer className="text-center text-gray-500 dark:text-gray-400 text-xs py-2">
-            <p>© {new Date().getFullYear()} Markdown & Mermaid 編輯器</p>
+            <p>© {new Date().getFullYear()} PanPanMan Markdown & Mermaid 編輯器</p>
           </footer>
         </div>
       </div>

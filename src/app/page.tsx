@@ -5,22 +5,10 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import mermaid from 'mermaid';
 import ReactMarkdown from 'react-markdown';
 import React from 'react';
-import html2pdf from 'html2pdf.js';
-
-// 定義 ReactMarkdown 組件的類型
-type MarkdownComponentProps = React.ComponentPropsWithoutRef<'div'> & {
-  children?: React.ReactNode;
-};
 
 // 定義 Code 組件的類型
 type CodeComponentProps = React.ComponentPropsWithoutRef<'code'> & {
   inline?: boolean;
-};
-
-// 定義 MermaidComponent 的 props 類型
-type MermaidComponentProps = {
-  content: string;
-  key?: number;
 };
 
 // 定義標題組件的類型

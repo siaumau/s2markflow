@@ -122,29 +122,17 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
     if (isOpen && content) {
       // 當模態框打開時重新初始化 Mermaid
       mermaid.initialize({
-        startOnLoad: true,
-        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'neutral',
+        startOnLoad: false,
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
         securityLevel: 'loose',
         flowchart: {
           useMaxWidth: true,
           htmlLabels: true,
           curve: 'basis',
         },
-        sequence: {
-          useMaxWidth: true,
-          showSequenceNumbers: true,
-        },
         class: {
           useMaxWidth: true,
-        },
-        er: {
-          useMaxWidth: true,
-        },
-        gantt: {
-          useMaxWidth: true,
-        },
-        pie: {
-          useMaxWidth: true,
+          defaultRenderer: 'dagre-d3'
         }
       });
 
@@ -155,7 +143,20 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
           const id = `mermaid-${Date.now()}-${index}`;
           element.id = id;
           try {
-            mermaid.init(undefined, `#${id}`);
+            // 檢測圖表類型並確保正確的語法
+            const content = element.textContent || '';
+            let processedContent = content.trim();
+
+            // 如果內容不是以圖表類型開頭，則添加
+            if (processedContent.includes('class ') && !processedContent.startsWith('classDiagram')) {
+              processedContent = `classDiagram\n${processedContent}`;
+            } else if ((processedContent.includes('-->') || processedContent.includes('---')) && !processedContent.startsWith('flowchart')) {
+              processedContent = `flowchart TD\n${processedContent}`;
+            }
+
+            mermaid.render(id, processedContent).then(({ svg }) => {
+              element.innerHTML = svg;
+            });
           } catch (error) {
             console.error('Mermaid rendering error:', error);
           }

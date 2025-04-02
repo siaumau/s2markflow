@@ -388,21 +388,13 @@ classDiagram
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // 檢測系統主題偏好
-    if (typeof window !== 'undefined') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
-
-      // 設置初始主題
-      if (prefersDark) {
-        document.documentElement.classList.add('dark');
-      }
-    }
+    // 設置初始主題為亮色模式
+    document.documentElement.classList.remove('dark');
 
     // 初始化 Mermaid
     mermaid.initialize({
       startOnLoad: true,
-      theme: darkMode ? 'dark' : 'neutral',
+      theme: 'neutral',
       securityLevel: 'loose',
       flowchart: {
         useMaxWidth: true,
@@ -426,7 +418,7 @@ classDiagram
         useMaxWidth: true,
       }
     });
-  }, [darkMode]);
+  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);

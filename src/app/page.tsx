@@ -92,7 +92,7 @@ const MermaidComponent = ({ content }: { content: string }) => {
   return (
     <div
       dangerouslySetInnerHTML={{ __html: svg }}
-      className="w-full overflow-x-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 my-4"
+      className="w-full overflow-x-auto bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-4 my-4"
       style={{
         minHeight: '100px',
         display: 'flex',
@@ -250,13 +250,13 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn">
-      <div className="bg-white dark:bg-gray-800 w-[90vw] h-[90vh] rounded-lg shadow-xl flex flex-col">
-        <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-black dark:text-white">Markdown 預覽</h2>
+      <div className="bg-white w-[90vw] h-[90vh] rounded-lg shadow-xl flex flex-col">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
+          <h2 className="text-xl font-semibold text-black">Markdown 預覽</h2>
           <div className="flex items-center space-x-2">
             <button
               onClick={handleDownloadPDF}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300"
+              className="p-2 hover:bg-gray-100 rounded-full text-gray-600"
               title="下載 PDF"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,16 +265,16 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
             </button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+              className="p-2 hover:bg-gray-100 rounded-full"
             >
-              <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-6">
-          <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900 p-4 shadow-inner">
+          <div className="overflow-auto rounded-md bg-white p-4 shadow-inner">
             <div className="relative">
               <button
                 onClick={() => {
@@ -297,14 +297,14 @@ const MarkdownModal = ({ isOpen, onClose, content, renderContent }: {
                     }, 100);
                   }
                 }}
-                className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div id="modal-preview-content" className="h-full overflow-auto prose dark:prose-invert max-w-none">
-                <div className="text-black dark:text-white">
+              <div id="modal-preview-content" className="h-full overflow-auto prose max-w-none">
+                <div className="text-black">
                   {renderContent(content)}
                 </div>
               </div>
@@ -384,13 +384,9 @@ classDiagram
 
   const [fileName, setFileName] = useState<string>('未選擇文件');
   const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [darkMode, setDarkMode] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // 設置初始主題為亮色模式
-    document.documentElement.classList.remove('dark');
-
     // 初始化 Mermaid
     mermaid.initialize({
       startOnLoad: true,
@@ -419,38 +415,6 @@ classDiagram
       }
     });
   }, []);
-
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    document.documentElement.classList.toggle('dark');
-    // 重新初始化 Mermaid 以適應新主題
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: !darkMode ? 'dark' : 'neutral',
-      securityLevel: 'loose',
-      flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-        curve: 'basis',
-      },
-      sequence: {
-        useMaxWidth: true,
-        showSequenceNumbers: true,
-      },
-      class: {
-        useMaxWidth: true,
-      },
-      er: {
-        useMaxWidth: true,
-      },
-      gantt: {
-        useMaxWidth: true,
-      },
-      pie: {
-        useMaxWidth: true,
-      }
-    });
-  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -536,29 +500,29 @@ classDiagram
               code({inline, children, ...props}: CodeComponentProps) {
                 if (inline) {
                   return (
-                    <code className="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-black dark:text-white" {...props}>
+                    <code className="px-1 py-0.5 rounded bg-gray-100 text-black" {...props}>
                       {children}
                     </code>
                   );
                 }
                 return (
-                  <pre className="p-4 rounded-md bg-gray-100 dark:bg-gray-700 overflow-auto">
-                    <code className="text-black dark:text-white" {...props}>
+                  <pre className="p-4 rounded-md bg-gray-100 overflow-auto">
+                    <code className="text-black" {...props}>
                       {children}
                     </code>
                   </pre>
                 );
               },
-              h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-black dark:text-white">{children}</h1>,
-              h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-black dark:text-white">{children}</h2>,
-              h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-black dark:text-white">{children}</h3>,
-              h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-black dark:text-white">{children}</h4>,
-              h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-black dark:text-white">{children}</h5>,
-              h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-black dark:text-white">{children}</h6>,
-              p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-black dark:text-white">{children}</p>,
-              ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4 text-black dark:text-white">{children}</ul>,
-              ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4 text-black dark:text-white">{children}</ol>,
-              li: ({children}: ListItemComponentProps) => <li className="mb-1 text-black dark:text-white">{children}</li>,
+              h1: ({children}: HeadingComponentProps) => <h1 className="text-2xl font-bold mt-6 mb-4 text-black">{children}</h1>,
+              h2: ({children}: HeadingComponentProps) => <h2 className="text-xl font-bold mt-5 mb-3 text-black">{children}</h2>,
+              h3: ({children}: HeadingComponentProps) => <h3 className="text-lg font-bold mt-4 mb-2 text-black">{children}</h3>,
+              h4: ({children}: HeadingComponentProps) => <h4 className="text-base font-bold mt-4 mb-2 text-black">{children}</h4>,
+              h5: ({children}: HeadingComponentProps) => <h5 className="text-sm font-bold mt-4 mb-2 text-black">{children}</h5>,
+              h6: ({children}: HeadingComponentProps) => <h6 className="text-xs font-bold mt-4 mb-2 text-black">{children}</h6>,
+              p: ({children}: ParagraphComponentProps) => <p className="mb-4 text-black">{children}</p>,
+              ul: ({children}: ListComponentProps) => <ul className="list-disc pl-6 mb-4 text-black">{children}</ul>,
+              ol: ({children}: OrderedListComponentProps) => <ol className="list-decimal pl-6 mb-4 text-black">{children}</ol>,
+              li: ({children}: ListItemComponentProps) => <li className="mb-1 text-black">{children}</li>,
             }}
           >
             {part}
@@ -569,10 +533,10 @@ classDiagram
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-2 py-4">
         <div className="max-w-6xl mx-auto space-y-4">
-          <header className="flex justify-between items-center py-2 px-4 bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm">
+          <header className="flex justify-between items-center py-2 px-4 bg-white/90 rounded-lg shadow-sm">
             <div className="flex items-center">
               <div className="w-6 h-6 bg-blue-500 rounded-md flex items-center justify-center shadow-sm mr-2">
                 <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,62 +544,48 @@ classDiagram
                 </svg>
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <h1 className="text-lg font-semibold text-gray-800">
                  PanPanMan Markdown & Mermaid 編輯器
                 </h1>
-                <p className="text-xs text-gray-600 dark:text-gray-300">
+                <p className="text-xs text-gray-600">
                   輕鬆編輯 Markdown 文件並創建流程圖
                 </p>
               </div>
             </div>
-            <button
-              onClick={toggleDarkMode}
-              className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            >
-              {darkMode ? (
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-              ) : (
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-              )}
-            </button>
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm p-4">
+            <div className="bg-white/90 rounded-lg shadow-sm p-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="text-sm font-medium text-gray-800 dark:text-white flex items-center">
+                <h2 className="text-sm font-medium text-gray-800 flex items-center">
                   <svg className="w-3.5 h-3.5 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   編輯
                 </h2>
-                <button className="p-1 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                <button className="p-1 rounded-md bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                   </svg>
                 </button>
               </div>
-              <div data-color-mode={darkMode ? "dark" : "light"} className="wmde-markdown-var">
+              <div data-color-mode="light" className="wmde-markdown-var">
                 <MDEditorComponent
                   value={value}
                   onChange={setValue}
                   preview="edit"
                   height={400}
-                  className="!bg-transparent text-black dark:text-white"
+                  className="!bg-transparent text-black"
                   textareaProps={{
-                    className: 'text-black dark:text-white'
+                    className: 'text-black'
                   }}
                 />
               </div>
             </div>
 
-            <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm p-4">
+            <div className="bg-white/90 rounded-lg shadow-sm p-4">
               <div className="flex justify-between items-center mb-3">
-                <h2 className="text-sm font-medium text-gray-800 dark:text-white flex items-center">
+                <h2 className="text-sm font-medium text-gray-800 flex items-center">
                   <svg className="w-3.5 h-3.5 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -644,7 +594,7 @@ classDiagram
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="p-1.5 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
                   title="在新視窗中預覽"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -652,54 +602,53 @@ classDiagram
                   </svg>
                 </button>
               </div>
-              <div className="relative">
-                <div className="overflow-auto rounded-md bg-white/50 dark:bg-gray-900/50 p-4 h-[400px] shadow-inner">
-                  {value && (
-                    <div className="relative">
-                      <button
-                        onClick={() => {
-                          const previewDiv = document.getElementById('preview-content');
-                          if (previewDiv) {
-                            previewDiv.classList.toggle('h-[400px]');
-                            previewDiv.classList.toggle('h-auto');
-                          }
-                        }}
-                        className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </button>
-                      <div id="preview-content" className="h-[400px] overflow-auto prose dark:prose-invert max-w-none">
-                        <div className="text-black dark:text-white">
-                          {renderContent(value)}
-                        </div>
+              
+              <div className="overflow-auto rounded-md bg-white/50 p-4 h-[400px] shadow-inner">
+                {value && (
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        const previewDiv = document.getElementById('preview-content');
+                        if (previewDiv) {
+                          previewDiv.classList.toggle('h-[400px]');
+                          previewDiv.classList.toggle('h-auto');
+                        }
+                      }}
+                      className="absolute top-2 right-2 p-1.5 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    <div id="preview-content" className="h-[400px] overflow-auto prose max-w-none">
+                      <div className="text-black">
+                        {renderContent(value)}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
-              className={`p-4 bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm border border-dashed ${
-                isDragging ? 'border-blue-500 bg-blue-50/30 dark:bg-blue-900/10' : 'border-gray-300 dark:border-gray-600'
+              className={`p-4 bg-white/90 rounded-lg shadow-sm border border-dashed ${
+                isDragging ? 'border-blue-500 bg-blue-50/30' : 'border-gray-300'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
               <div className="flex items-center">
-                <div className="mr-3 w-8 h-8 flex items-center justify-center bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                <div className="mr-3 w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full">
                   <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-sm font-medium text-gray-800 dark:text-white">上傳文件</h2>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">支持 .md, .markdown, .txt 格式</p>
+                  <h2 className="text-sm font-medium text-gray-800">上傳文件</h2>
+                  <p className="text-xs text-gray-500">支持 .md, .markdown, .txt 格式</p>
 
                   <div className="mt-2 flex items-center">
                     <input
@@ -715,14 +664,14 @@ classDiagram
                     >
                       選擇檔案
                     </label>
-                    <p className="ml-2 text-xs text-gray-500 dark:text-gray-400 truncate max-w-[150px]">{fileName}</p>
+                    <p className="ml-2 text-xs text-gray-500 truncate max-w-[150px]">{fileName}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/90 dark:bg-gray-800/90 rounded-lg shadow-sm p-4">
-              <h2 className="text-sm font-medium text-gray-800 dark:text-white flex items-center mb-2">
+            <div className="bg-white/90 rounded-lg shadow-sm p-4">
+              <h2 className="text-sm font-medium text-gray-800 flex items-center mb-2">
                 <svg className="w-3.5 h-3.5 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                 </svg>
@@ -733,9 +682,9 @@ classDiagram
                   type="url"
                   name="url"
                   placeholder="輸入 Markdown 檔案的 URL"
-                  className="flex-1 px-3 py-1 text-xs rounded-md border border-gray-200 dark:border-gray-600
+                  className="flex-1 px-3 py-1 text-xs rounded-md border border-gray-200
                     focus:ring-1 focus:ring-blue-500 focus:border-transparent
-                    dark:bg-gray-700 dark:text-white"
+                    bg-white text-black"
                 />
                 <button
                   type="submit"
@@ -749,7 +698,7 @@ classDiagram
             </div>
           </div>
 
-          <footer className="text-center text-gray-500 dark:text-gray-400 text-xs py-2">
+          <footer className="text-center text-gray-500 text-xs py-2">
             <p>© {new Date().getFullYear()} PanPanMan Markdown & Mermaid 編輯器</p>
           </footer>
         </div>

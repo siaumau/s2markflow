@@ -7,17 +7,8 @@
   --primary-dark: #1d4ed8;
   --secondary: #64748b;
   --accent: #0ea5e9;
-  --background: #f8fafc;
-  --foreground: #0f172a;
-}
-
-.dark {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary: #94a3b8;
-  --accent: #38bdf8;
-  --background: #0f172a;
-  --foreground: #f8fafc;
+  --background: #ffffff;
+  --foreground: #000000;
 }
 
 body {
@@ -27,7 +18,7 @@ body {
 
 @layer components {
   .markdown-content {
-    @apply prose dark:prose-invert max-w-none;
+    @apply prose max-w-none;
     font-size: 0.975rem !important;
   }
 }
@@ -39,19 +30,10 @@ body {
   overflow: hidden !important;
 }
 
-.dark .w-md-editor {
-  border-color: #1e293b !important;
-}
-
 .w-md-editor-toolbar {
   background: #f8fafc !important;
   border-bottom: 1px solid #e2e8f0 !important;
   padding: 0.5rem !important;
-}
-
-.dark .w-md-editor-toolbar {
-  background: #1e293b !important;
-  border-color: #334155 !important;
 }
 
 .w-md-editor-toolbar ul li button {
@@ -65,10 +47,6 @@ body {
 .w-md-editor-toolbar ul li button:hover {
   background-color: #e2e8f0 !important;
   color: var(--primary) !important;
-}
-
-.dark .w-md-editor-toolbar ul li button:hover {
-  background-color: #334155 !important;
 }
 
 .w-md-editor-text {
@@ -98,10 +76,6 @@ body {
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-.dark .mermaid {
-  filter: invert(1) hue-rotate(180deg);
-}
-
 .mermaid svg {
   max-width: 100%;
   height: auto;
@@ -122,10 +96,6 @@ body {
   border-radius: 4px;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
 /* 動畫效果 */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -142,22 +112,11 @@ body {
   --color-fg-default: #000000 !important;
 }
 
-/* 深色模式樣式 */
-.dark .wmde-markdown-var {
-  --color-fg-default: #ffffff !important;
-}
-
 /* 編輯器文字顏色 */
 .w-md-editor-text-pre,
 .w-md-editor-text-input,
 .w-md-editor-text {
   color: #000000 !important;
-}
-
-.dark .w-md-editor-text-pre,
-.dark .w-md-editor-text-input,
-.dark .w-md-editor-text {
-  color: #ffffff !important;
 }
 
 /* 標題符號顏色 */
@@ -166,27 +125,14 @@ body {
   color: #000000 !important;
 }
 
-.dark .w-md-editor-text-pre > code .token.punctuation,
-.dark .w-md-editor-text-input .token.punctuation {
-  color: #ffffff !important;
-}
-
 /* 工具欄圖標顏色 */
 .w-md-editor-toolbar {
   color: #000000 !important;
 }
 
-.dark .w-md-editor-toolbar {
-  color: #ffffff !important;
-}
-
 /* 工具欄按鈕懸停效果 */
 .w-md-editor-toolbar button:hover {
   background-color: rgba(0, 0, 0, 0.1) !important;
-}
-
-.dark .w-md-editor-toolbar button:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* 確保所有 Markdown 符號都遵循主題顏色 */
@@ -198,11 +144,6 @@ body {
 .w-md-editor-text-pre > code,
 .w-md-editor-text-input {
   color: #000000 !important;
-}
-
-.dark .w-md-editor-text-pre > code,
-.dark .w-md-editor-text-input {
-  color: #ffffff !important;
 }
 
 /* Prose 樣式覆蓋 */
@@ -223,23 +164,4 @@ body {
   --tw-prose-pre-bg: #f3f4f6 !important;
   --tw-prose-th-borders: #000000 !important;
   --tw-prose-td-borders: #000000 !important;
-}
-
-.dark .prose {
-  --tw-prose-body: #ffffff !important;
-  --tw-prose-headings: #ffffff !important;
-  --tw-prose-lead: #ffffff !important;
-  --tw-prose-links: #ffffff !important;
-  --tw-prose-bold: #ffffff !important;
-  --tw-prose-counters: #ffffff !important;
-  --tw-prose-bullets: #ffffff !important;
-  --tw-prose-hr: #ffffff !important;
-  --tw-prose-quotes: #ffffff !important;
-  --tw-prose-quote-borders: #ffffff !important;
-  --tw-prose-captions: #ffffff !important;
-  --tw-prose-code: #ffffff !important;
-  --tw-prose-pre-code: #ffffff !important;
-  --tw-prose-pre-bg: #1f2937 !important;
-  --tw-prose-th-borders: #ffffff !important;
-  --tw-prose-td-borders: #ffffff !important;
 }
